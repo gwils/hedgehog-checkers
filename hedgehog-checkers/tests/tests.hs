@@ -40,6 +40,8 @@ genEither = genEither' genInt genInt
 eitherAlt :: Property
 eitherAlt = property $ do
   alt genEither
+  altLeftDistributive genEither genInt genInt
+  altRightDistributive (genEither' genInt) genEither genInt genInt
 
 eitherBifunctor :: Property
 eitherBifunctor = property $ do
