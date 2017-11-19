@@ -1,5 +1,6 @@
 
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Hedgehog.Checkers.Properties
   (
@@ -8,9 +9,14 @@ module Hedgehog.Checkers.Properties
   , leftIdentity
   , rightIdentity
   , associativity
+  , leftDistributive
+  , rightDistributive
   ) where
 
 import Hedgehog
+
+import Hedgehog.Checkers.Ugly.Function.Hack
+
 
 leftIdentity :: (Eq a, Show a)
              => (a -> a -> a)
@@ -71,3 +77,28 @@ commutativity f gena = do
 --     classify (x == y) "equals" $
 --     classify (x < y)  "greater than" $
 --     x < y || x == y || x > y
+
+leftDistributive :: ( Ord a
+                    , Eq (f b)
+                    , Show (f a)
+                    , Show (f b)
+                    )
+                 => (forall p q. (p -> q) -> f p -> f q) -> (forall z. f z -> f z -> f z) -> Gen (f a) -> Gen a -> Gen b -> PropertyT IO ()
+leftDistributive x y genFa genA genB = do
+  f <- ordFuncWtf genA genB
+  a <- forAll genFa
+  b <- forAll genFa
+  (f `x` (a `y` b)) === ((f `x` a) `y` (f `x` b))
+
+rightDistributive :: ( Ord a
+                     , Eq (f b)
+                     , Show (f a)
+                     , Show (f b)
+                     )
+                  => (forall z. f z -> f z -> f z) -> (forall p q. f (p -> q) -> f p -> f q) -> (Gen (a -> b) -> Gen (f (a -> b))) -> Gen (f a) -> Gen a -> Gen b -> PropertyT IO ()
+rightDistributive x y f genFa genA genB = do
+  let func = funcForAllWtf (f (ordFuncWtf' genA genB))
+  a <- func
+  b <- func
+  c <- forAll genFa
+  ((a `x` b) `y` c) === ((a `y` c) `x` (b `y` c))

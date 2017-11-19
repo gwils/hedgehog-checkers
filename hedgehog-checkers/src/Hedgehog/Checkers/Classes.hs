@@ -5,8 +5,12 @@ module Hedgehog.Checkers.Classes
   (
   -- | Classes
     alt
+  , altLeftDistributive
+  , altRightDistributive
   , alternative
   , alternativeAltAgreement
+  , alternativeLeftDistributive
+  , alternativeRightDistributive
   , bifunctor
   , functor
   , semigroup
@@ -39,6 +43,25 @@ alt gen = do
   associativity (<!>) gen
 -- f <$> (a <!> b) = (f <$> a) <!> (f <$> b)
 
+altLeftDistributive :: ( Alt f
+                       , Ord a
+                       , Eq (f b)
+                       , Show (f a)
+                       , Show (f b)
+                       )
+                    => Gen (f a) -> Gen a -> Gen b -> PropertyT IO ()
+altLeftDistributive = leftDistributive (<$>) (<!>)
+
+altRightDistributive :: ( Alt f
+                        , Apply f
+                        , Ord a
+                        , Eq (f b)
+                        , Show (f a)
+                        , Show (f b)
+                        )
+                     => (Gen (a -> b) -> Gen (f (a -> b))) -> Gen (f a) -> Gen a -> Gen b -> PropertyT IO ()
+altRightDistributive = rightDistributive (<!>) (<.>)
+
 -- | Alternative instances should respect identity
 --   (left and right) and associativity for (<|>)
 --   empty <|> x  =  x
@@ -53,6 +76,25 @@ alternative :: ( Alternative f
 alternative gen = do
   identity (<|>) empty gen
   associativity (<|>) gen
+
+alternativeLeftDistributive :: ( Alternative f
+                               , Ord a
+                               , Eq (f b)
+                               , Show (f a)
+                               , Show (f b)
+                               )
+                            => Gen (f a) -> Gen a -> Gen b -> PropertyT IO ()
+alternativeLeftDistributive = leftDistributive (<$>) (<|>)
+
+alternativeRightDistributive :: ( Alternative f
+                                , Applicative f
+                                , Ord a
+                                , Eq (f b)
+                                , Show (f a)
+                                , Show (f b)
+                                )
+                             => (Gen (a -> b) -> Gen (f (a -> b))) -> Gen (f a) -> Gen a -> Gen b -> PropertyT IO ()
+alternativeRightDistributive = rightDistributive (<|>) (<*>)
 
 alternativeAltAgreement :: ( Alt f
                            , Alternative f

@@ -45,6 +45,7 @@ genEither = genEither' genInt genInt
 eitherAlt :: Property
 eitherAlt = property $ do
   alt genEither
+  altLeftDistributive genEither genInt genInt
 
 eitherBifunctor :: Property
 eitherBifunctor = property $ do
@@ -79,10 +80,16 @@ maybeMonoid = property $ do
   monoid genMaybe
 
 maybeAlt :: Property
-maybeAlt = property $ alt genMaybe
+maybeAlt = property $ do
+  alt genMaybe
+  altLeftDistributive genMaybe genSum genSum
+  altRightDistributive genMaybe' genMaybe genSum genSum
 
 maybeAlternative :: Property
-maybeAlternative = property $ alternative genMaybe
+maybeAlternative = property $ do
+  alternative genMaybe
+  alternativeLeftDistributive genMaybe genSum genSum
+  alternativeRightDistributive genMaybe' genMaybe genSum genSum
 
 maybeAlternativeAlt :: Property
 maybeAlternativeAlt = property $ alternativeAltAgreement genMaybe
