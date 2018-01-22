@@ -2,18 +2,16 @@
 
 module Main where
 
-import           Control.Applicative
 import           Control.Monad
 import           Data.Either.Validation
-import           Data.Functor (void)
 import           Data.Monoid (Sum(..))
 import           System.Exit (exitFailure)
 
-import Hedgehog
+import           Hedgehog
 import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 
-import Hedgehog.Checkers
+import           Hedgehog.Checkers
 
 genValidation :: Gen a -> Gen b -> Gen (Validation a b)
 genValidation ga gb = do
@@ -106,6 +104,12 @@ maybeApplicativeApply :: Property
 maybeApplicativeApply = property $
   applicativeApplyAgreement genMaybe genSum genSum
 
+intOrd :: Property
+intOrd = property $
+  ord genInt varyGenInt
+  where varyGenInt i =
+          Gen.int (Range.linear i maxBound)
+
 main :: IO ()
 main = do
   e <-
@@ -127,4 +131,8 @@ main = do
                          , ("Applicative", maybeApplicative)
                          , ("ApplicativeApply", maybeApplicativeApply)
                          ]
-  unless (and [e,m]) exitFailure
+  o <-
+    checkParallel $
+      Group "Ord" [ ("Int", intOrd)
+                  ]
+  unless (and [e,m,o]) exitFailure

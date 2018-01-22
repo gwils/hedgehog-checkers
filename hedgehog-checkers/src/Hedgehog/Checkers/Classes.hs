@@ -4,7 +4,8 @@
 module Hedgehog.Checkers.Classes
   (
   -- | Classes
-    alt
+    ord
+  , alt
   , altLeftDistributive
   , altRightDistributive
   , alternative
@@ -31,6 +32,18 @@ import qualified Hedgehog.Range as Range
 
 import Hedgehog.Checkers.Properties
 import Hedgehog.Checkers.Ugly.Function.Hack
+
+-- | Total ordering, genf (a -> Gen a) should
+--   always return a value equal to or higher
+--   than its input.
+ord :: forall a. (Eq a, Ord a, Show a)
+    => Gen a -> (a -> Gen a) -> PropertyT IO ()
+ord gena genf = do
+  reflexive rel gena
+  transitive rel gena genf
+  antiSymmetric rel gena genf
+  where
+    rel = (<=)
 
 -- | <!> is associative:             (a <!> b) <!> c = a <!> (b <!> c)
 --   <$> left-distributes over <!>:  f <$> (a <!> b) = (f <$> a) <!> (f <$> b)
@@ -288,18 +301,7 @@ applicativeApplyAgreement gen gena genb = do
   fab <- liftedFunctionWtf gen gena genb
   (fab <.> fa) === (fab <*> fa)
 
--- identityP     :: m a -> Property
--- compositionP  :: m (b -> c) -> m (a -> b) -> m a -> Property
--- homomorphismP :: (a -> b) -> a -> Property
--- interchangeP  :: m (a -> b) -> a -> Property
--- functorP      :: (a -> b) -> m a -> Property
-
--- identityP v        = (pure id <*> v) =-= v
--- compositionP u v w = (pure (.) <*> u <*> v <*> w) =-= (u <*> (v <*> w))
--- homomorphismP f x  = (pure f <*> pure x) =-= (pure (f x) :: m b)
--- interchangeP u y   = (u <*> pure y) =-= (pure ($ y) <*> u)
--- functorP f x       = (fmap f x) =-= (pure f <*> x)
-
+---- Done
 -- (Semigroup e, Monoid e) => Alternative (Validation e)	 
 -- Alt (Validation e)	 
 -- Functor (Validation e)
@@ -307,10 +309,12 @@ applicativeApplyAgreement gen gena genb = do
 -- Semigroup e => Semigroup (Validation e a)	 
 -- Monoid e => Monoid (Validation e a)Source
 -- Semigroup e => Applicative (Validation e)	 
+-- (Ord a, Ord e) => Ord (Validation e a)
 
+---- To be done
 -- Traversable (Validation e)
 -- Bitraversable Validation	 
+-- https://github.com/bitemyapp/hedgehog-checkers/issues/9
 
--- (Ord a, Ord e) => Ord (Validation e a)
 -- (Eq a, Eq e) => Eq (Validation e a)	 
 -- (Show a, Show e) => Show (Validation e a)	 
