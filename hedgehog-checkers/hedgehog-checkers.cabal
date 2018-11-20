@@ -22,8 +22,8 @@ library
       src
   build-depends:
       base >=4.7 && <5
-    , containers >=0.4 && <0.6
-    , hedgehog >=0.5 && <0.6
+    , containers >=0.4 && <0.7
+    , hedgehog >=0.5 && <0.7
     , semigroupoids >=5 && <6
     , semigroups >=0.9 && <1
   exposed-modules:
@@ -44,7 +44,7 @@ test-suite tests
   build-depends:
       base >=4.7 && <5
     , either >=5 && <6
-    , hedgehog >=0.5 && <0.6
+    , hedgehog >=0.5 && <0.7
     , hedgehog-checkers
   other-modules:
       Paths_hedgehog_checkers

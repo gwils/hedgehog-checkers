@@ -24,7 +24,7 @@ library
       src
   build-depends:
       base >=4.7 && <5
-    , hedgehog >=0.5 && <0.6
+    , hedgehog >=0.5 && <0.7
     , hedgehog-checkers
     , lens >=4 && <5
   exposed-modules:
@@ -41,7 +41,7 @@ test-suite tests
   ghc-options: -threaded -Wall -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
-    , hedgehog >=0.5 && <0.6
+    , hedgehog >=0.5 && <0.7
     , hedgehog-checkers
     , hedgehog-checkers-lens
     , lens >=4 && <5
